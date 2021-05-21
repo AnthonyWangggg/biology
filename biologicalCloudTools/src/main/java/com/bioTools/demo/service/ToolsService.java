@@ -69,7 +69,7 @@ public class ToolsService{
 	
 	public String generateFileString(String model) {
 		this.absolutePath = getABPathService.getAbsolutePath(); 
-		String rFilePath = "public/RTools" + "/" + model + ".R";
+		String rFilePath = "RTools" + "/" + model + ".R";
 		String fileStringTemp = "source('"+this.absolutePath+rFilePath+ "')";
 //		System.out.println(fileStringTemp);
 		return fileStringTemp;
@@ -207,8 +207,8 @@ public class ToolsService{
 		}
 		
 		try {
-			connection = new RConnection(host, port);
-//			connection = new RConnection();
+//			connection = new RConnection(host, port);
+			connection = new RConnection();
 		} catch (RserveException e) {
 			e.printStackTrace();
 		}
@@ -225,36 +225,6 @@ public class ToolsService{
 		connection.close();
 		return result;
 	}
-	
-	
-	
-	public String toolTest(String sourceFilePath, String destFilePath) 
-			throws REXPMismatchException{
-		
-		String result = "";
-		String rFilePath = "public/RTools/Test.R";
-		String fileString = "source('"+this.absolutePath+rFilePath+"')";
-		String functionString = "chartLine(\'" + this.absolutePath + sourceFilePath + "','xx','yy','" + this.absolutePath + destFilePath + "\')";
-		
-		RConnection connection = null;
-		try {
-			connection = new RConnection();
-		} catch (RserveException e) {
-			e.printStackTrace();
-		}
-		try {
-			connection.eval(fileString);
-			REXP rexp = connection.eval(functionString);
-			result = rexp.asString();
-			System.out.println(result);
-		} catch (RserveException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		connection.close();
-		return result;
-	}
-	
 	
 	
 }

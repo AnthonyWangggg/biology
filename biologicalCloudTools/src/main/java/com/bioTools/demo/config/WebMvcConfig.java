@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -47,31 +48,32 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		String path = getABPathService.getAbsolutePath();
-		List<String> emailList = personInfoService.getAllUsersEmail();
-		String[] tempStrings = new String[emailList.size() * 2 + 2 ];
-		for(int i= 0; i<emailList.size();i++) {
-			String tempFileString = "classpath:" + "public/UserFolder/" + emailList.get(i) + "/";
-			tempStrings[i*2] = tempFileString;
-			String tempFileString2 = "classpath:" + "public/UploadFolder/" + emailList.get(i) + "/";
-			tempStrings[i*2 + 1] = tempFileString2;
-		}
-		tempStrings[emailList.size()*2] = "classpath:" + "public/UserFolder/" + "test" + "/";
-		tempStrings[emailList.size()*2 + 1] = "classpath:" + "public/UploadFolder/" + "test" + "/";
-		String[] fileStrings = new String[emailList.size() * 2 + 2 ];
-		for(int i= 0; i<emailList.size();i++) {
-			String tempFileString = "file:" + path + "public/UserFolder/" + emailList.get(i) + "/";
-			fileStrings[i*2] = tempFileString;
-			String tempFileString2 = "file:" + path + "public/UploadFolder/" + emailList.get(i) + "/";
-			fileStrings[i*2 + 1] = tempFileString2;
-		}
-		fileStrings[emailList.size()*2] = "file:" + path + "public/UserFolder/" + "test" + "/";
-		fileStrings[emailList.size()*2 + 1] = "file:" + path + "public/UploadFolder/" + "test" + "/";
-//		System.out.println();
+		System.out.println(path);
+//		List<String> emailList = personInfoService.getAllUsersEmail();
+//		String[] tempStrings = new String[emailList.size() * 2 + 2 ];
+//		for(int i= 0; i<emailList.size();i++) {
+//			String tempFileString = "classpath:" + "public/UserFolder/" + emailList.get(i) + "/";
+//			tempStrings[i*2] = tempFileString;
+//			String tempFileString2 = "classpath:" + "public/UploadFolder/" + emailList.get(i) + "/";
+//			tempStrings[i*2 + 1] = tempFileString2;
+//		}
+//		tempStrings[emailList.size()*2] = "classpath:" + "public/UserFolder/" + "test" + "/";
+//		tempStrings[emailList.size()*2 + 1] = "classpath:" + "public/UploadFolder/" + "test" + "/";
+//		String[] fileStrings = new String[emailList.size() * 2];
+//		for(int i= 0; i<emailList.size();i++) {
+//			String tempFileString = "file:" + path + "UserFolder/" + emailList.get(i) + "/";
+//			fileStrings[i*2] = tempFileString;
+//			String tempFileString2 = "file:" + path + "UploadFolder/" + emailList.get(i) + "/";
+//			fileStrings[i*2 + 1] = tempFileString2;
+//		}
+//		System.out.println(emailList.toString());
+//		registry.addResourceHandler("/public/**")
+////			.addResourceLocations(tempStrings)
+//			.addResourceLocations(fileStrings);
 		registry.addResourceHandler("/public/**")
-			.addResourceLocations(tempStrings)
-			.addResourceLocations(fileStrings);
+		.addResourceLocations("file:" + path+"UserFolder/")
+		.addResourceLocations("file:" + path+"UploadFolder/");
 		registry.addResourceHandler("/static/**")
-		.addResourceLocations("classpath:static/")
 		.addResourceLocations("file:" + path + "static/");
   }
 	

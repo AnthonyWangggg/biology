@@ -103,7 +103,7 @@ public class ToolsController {
 				if(i != 0) {
 					results +=",";
 				}
-				results += "public/"+temp[i];
+				results += "public/"+history.getEmail()+"/"+temp[i];
 			}
 			return results.toString();
 		}else {

@@ -30,8 +30,8 @@ import com.bioTools.demo.util.GetTimeStringService;
 @Service
 public class FileService {
 	
-	private static String saveFolderPath = "public/UserFolder/";
-	private static String updateFolderPath = "public/UploadFolder/";
+	private static String saveFolderPath = "UserFolder/";
+	private static String updateFolderPath = "UploadFolder/";
 	
 	@Autowired
 	private GetTimeStringService getTimeStringService;
@@ -40,11 +40,12 @@ public class FileService {
 	
 
 	public String upload(MultipartFile file,History history) {
+		String abPath = getAbsolutePathService.getAbsolutePath();
     	String dataPath = updateFolderPath + history.getEmail() + "/";
     	String dataName = getTimeStringService.getTimeString() + "_" + file.getOriginalFilename();
 		if (!file.isEmpty()) {    
             try {
-                BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream(new File(dataPath+dataName) ) );    
+                BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream(new File(abPath+dataPath+dataName) ) );    
 //                System.out.println(file.getName());  
                 out.write(file.getBytes());    
                 out.flush();    
@@ -66,13 +67,14 @@ public class FileService {
     }
 	
 	public String multiUpload(MultipartFile[] files,History history) {
+		String abPath = getAbsolutePathService.getAbsolutePath();
     	String dataPath = updateFolderPath + history.getEmail() + "/";
         history.setDatapath(dataPath);
         for(MultipartFile file: files) {
         	String filename =  getTimeStringService.getTimeString() + "_" + file.getOriginalFilename();
     		if (!file.isEmpty()) {    
                 try {
-                    BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream(new File(dataPath+filename) ) );    
+                    BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream(new File(abPath+dataPath+filename) ) );    
 //                    System.out.println(file.getName());  
                     out.write(file.getBytes());    
                     out.flush();    
@@ -93,12 +95,13 @@ public class FileService {
     }
 	
 	public String save(MultipartFile[] files,History history) {
+		String abPath = getAbsolutePathService.getAbsolutePath();
 		String picPath = saveFolderPath + history.getEmail() + "/";
         history.setPicpath(picPath);
         for (int i=0;i<files.length;i++) {
         	String picName = getTimeStringService.getTimeString() + "_" + files[i].getName()+".svg";
     		if (!files[i].isEmpty()) {
-            	String temp = getAbsolutePathService.getAbsolutePath()+picPath+picName;
+            	String temp = abPath+picPath+picName;
                 File saveFile = new File(temp);
                 if (!saveFile.exists()){
                     saveFile.mkdirs();
@@ -167,11 +170,12 @@ public class FileService {
 	
 
 	public void createFolder(String s) {
-		File file=new File(saveFolderPath+s);
+		String abPath = getAbsolutePathService.getAbsolutePath();
+		File file=new File(abPath+saveFolderPath+s);
 		if(!file.exists()){//如果文件夹不存在
 			file.mkdir();//创建文件夹
 		}
-		File file_upload=new File(updateFolderPath+s);
+		File file_upload=new File(abPath+updateFolderPath+s);
 		if(!file_upload.exists()){//如果文件夹不存在
 			file_upload.mkdir();//创建文件夹
 		}
@@ -179,37 +183,28 @@ public class FileService {
 	}
 	
 	public void deleteFolder(String email) {
-		File file = new File(saveFolderPath+email);
-		File file_upload=new File(updateFolderPath+email);
+		String abPath = getAbsolutePathService.getAbsolutePath();
+		File file = new File(abPath+saveFolderPath+email);
+		File file_upload=new File(abPath+updateFolderPath+email);
 		deleteDir(file);
 		deleteDir(file_upload);
     }
 	
 	public void deleteFile(History history) {
+		String abPath = getAbsolutePathService.getAbsolutePath();
 		if(history.getDatapath() != null) {
 			String[] files = history.getDataname().split(",");
 			for(int i=0;i<files.length;i++) {
-				File file = new File(history.getDatapath()+files[i]);
+				File file = new File(abPath+history.getDatapath()+files[i]);
 				file.delete();
 			}
 		}
 		if(history.getPicpath() != null) {
 			String[] files = history.getPicname().split(",");
 			for(int i=0;i<files.length;i++) {
-				File file = new File(history.getPicpath()+files[i]);
+				File file = new File(abPath+history.getPicpath()+files[i]);
 				file.delete();
 			}
-		}
-	}
-	
-	public void deleteFile(String dataPath, String picPath) {
-		if(dataPath != null) {
-			File file = new File(dataPath);
-			file.delete();
-		}
-		if(picPath != null) {
-			File file2 = new File(picPath);
-			file2.delete();
 		}
 	}
 	
