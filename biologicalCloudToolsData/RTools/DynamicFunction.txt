@@ -1,0 +1,252 @@
+
+
+#组内相关性热图
+#data_filepath 数据文件路径,支持txt,csv,xlsx
+#out_picpath 输出的图片路径，svg格式
+#cor_type 分析类型(string) 输入三者之一("pearson","kendall","spearman")
+#cal_dir 选择计算向量(string) 输入二者之一("col","row")
+#U_color 颜色
+#U_text_fontsize 标签文字的大小
+#U_display_number 单元格内数字是否显示(TRUE,FALSE)
+#如果U_display_number值为TRUE时，以下两个参数的设置才生效，无论TRUE或者FALSE以下两个参数都需要传递值
+#U_fontcolor 表格字体颜色,默认传"grey"
+#U_fontsize 表格字体大小
+#display_grid 是否画出格子的边界(TRUE,FALSE)
+#display_rowcol_text 结果是否显示行名和列名(TRUE,FALSE)
+
+plot_heatmap_cor=function(data_filepath,out_picpath,cor_type,cal_dir,U_color,U_text_fontsize,U_display_number,U_fontcolor,U_fontsize,display_grid,display_rowcol_text){
+  library(corrplot)
+  library(ggplot2)
+  library(Cairo)
+  library(openxlsx)
+  
+  line_data=NULL
+  file_type=unlist(strsplit(data_filepath,"[.]"))[-1]
+  file_type=file_type[length(file_type)]
+  if(file_type=="txt")
+    line_data=read.table(data_filepath,header=TRUE,row.names = 1,sep="\t",na.strings=c("NA"),check.names=F)
+  if(file_type=="csv")
+    line_data=read.csv(data_filepath,header=TRUE,row.names = 1,sep=",",na.strings=c("NA"),check.names=F)
+  if(file_type=="xlsx")
+    line_data=read.xlsx(data_filepath,colNames = TRUE,rowNames = TRUE,na.strings=c("NA"))
+  
+  
+  if(cal_dir=="row")
+    line_data=-t(line_data)
+  matrix_data=cor(line_data,method = cor_type)
+  color = colorRampPalette(U_color)(102)
+  if(U_display_number){
+    if(display_grid){
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,addgrid.col="grey")
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,addgrid.col="grey",tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+    else{
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4)
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,tl.pos = "n")
+        graphics.off()
+      }
+    }
+  }
+  else{
+    if(display_grid){
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addgrid.col="grey")
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addgrid.col="grey",tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+    else{
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE)
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+  }
+}
+plot_heatmap_cor("E:/code_app/R_code/Rdata/heatmap.xls",
+                 "E:/code_app/R_code/Rdata/heatmap_out.svg",
+                 "pearson",
+                 "col",
+                 c("green","white"),
+                 10,
+                 FALSE,
+                 "grey",
+                 8,
+                 TRUE,
+                 TRUE)
+
+
+
+#组间相关性热图
+#data_filepath1 数据文件1路径,支持txt,csv,xlsx
+#data_filepath2 数据文件2路径,支持txt,csv,xlsx
+#out_picpath 输出的图片路径，svg格式
+#cor_type 分析类型(string) 输入三者之一("pearson","kendall","spearman")
+#U_color 颜色
+#U_text_fontsize 标签文字的大小
+#U_display_number 单元格内数字是否显示(TRUE,FALSE)
+#如果U_display_number值为TRUE时，以下两个参数的设置才生效，无论TRUE或者FALSE以下两个参数都需要传递值
+#U_fontcolor 表格字体颜色,默认传"grey"
+#U_fontsize 表格字体大小
+#display_grid 是否画出格子的边界(TRUE,FALSE)
+#display_rowcol_text 结果是否显示行名和列名(TRUE,FALSE)
+
+plot_heatmap_cor2=function(data_filepath1,data_filepath2,out_picpath,cor_type,U_color,U_text_fontsize,U_display_number,U_fontcolor,U_fontsize,display_grid,display_rowcol_text){
+  library(corrplot)
+  library(ggplot2)
+  library(Cairo)
+  library(openxlsx)
+  
+  line_data1=NULL
+  file_type1=unlist(strsplit(data_filepath1,"[.]"))
+  file_type1=file_type1[length(file_type1)]
+  if(file_type1=="txt")
+    line_data1=read.table(data_filepath1,header=TRUE,row.names = 1,sep="\t",na.strings=c("NA"),check.names=F)
+  if(file_type1=="csv")
+    line_data1=read.csv(data_filepath1,header=TRUE,row.names = 1,sep=",",na.strings=c("NA"),check.names=F)
+  if(file_type1=="xlsx")
+    line_data1=read.xlsx(data_filepath1,colNames = TRUE,rowNames = TRUE,na.strings=c("NA"))
+  
+  line_data2=NULL
+  file_type2=unlist(strsplit(data_filepath2,"[.]"))[-1]
+  file_type2=file_type2[length(file_type2)]
+  if(file_type2=="txt")
+    line_data2=read.table(data_filepath2,header=TRUE,row.names = 1,sep="\t",na.strings=c("NA"),check.names=F)
+  if(file_type2=="csv")
+    line_data2=read.csv(data_filepath2,header=TRUE,row.names = 1,sep=",",na.strings=c("NA"),check.names=F)
+  if(file_type2=="xlsx")
+    line_data2=read.xlsx(data_filepath2,colNames = TRUE,rowNames = TRUE,na.strings=c("NA"))
+  
+  
+  line_data1=-t(line_data1)
+  line_data2=-t(line_data2)
+  
+  matrix_data=cor(line_data1,line_data2,method = cor_type)
+  color = colorRampPalette(U_color)(102)
+  
+  if(U_display_number){
+    if(display_grid){
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,addgrid.col="grey")
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,addgrid.col="grey",tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+    else{
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4)
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addCoef.col=U_fontcolor,number.cex = U_fontsize/10,
+                      number.digits = 4,tl.pos = "n")
+        graphics.off()
+      }
+    }
+  }
+  else{
+    if(display_grid){
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addgrid.col="grey")
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,addgrid.col="grey",tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+    else{
+      if(display_rowcol_text){
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE)
+        graphics.off()
+      }
+      else{
+        CairoSVG(file=out_picpath,width = ncol(matrix_data)+3,height = nrow(matrix_data)+3)
+        plot=corrplot(corr = matrix_data,method="color",col = color,tl.cex = U_text_fontsize/10,
+                      is.corr=FALSE,tl.pos = "n")
+        graphics.off()
+      }
+      
+    }
+  }
+}
+
+plot_heatmap_cor2("E:/code_app/R_code/Rdata/ica2_1.eg.xlsx",
+                  "E:/code_app/R_code/Rdata/ica2_2.eg.txt",
+                  "E:/code_app/R_code/Rdata/heatmap_out.svg",
+                  "pearson",
+                  c("green","white"),
+                  10,
+                  FALSE,
+                  "grey",
+                  8,
+                  TRUE,
+                  TRUE)
+
+
+
+
+
+
